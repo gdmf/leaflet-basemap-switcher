@@ -15,6 +15,7 @@ Usage:
 	// Create a Backbone Collection View that serves as the WMS checkbox list
 	var collView = new _SPDEV.LBasemapSwitcher.SelectionListCollectionView({'collection': coll});
 	
+	// Set the default basemap as the active basemap
 	coll.setDefault();
 	
 	// render that collection view
