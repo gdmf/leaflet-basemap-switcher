@@ -3,6 +3,9 @@ leaflet-basemap-switcher
 
 Switch among a collection of basemaps.  Uses a Backbone collection to store basemaps, and Backbone views to determine how to display the list of basemaps to choose from.  Override the Model and Collection view html templates and CSS to alter the look/styling of the basemap selection list. 
 
+
+Note: if u want to add a Bing basemap, you will need to extend your Leaflet codebase with this https://github.com/spatialdev/leaflet-bing-layer.
+
 Usage:
 
 	// Create a Backbone collection ohbject
@@ -14,6 +17,7 @@ Usage:
 	// Create a Backbone Collection View that serves as the WMS checkbox list
 	var collView = new _SPDEV.LBasemapSwitcher.SelectionListCollectionView({'collection': coll});
 	
+	// Set the default basemap as the active basemap
 	coll.setDefault();
 	
 	// render that collection view
