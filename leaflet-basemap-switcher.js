@@ -162,7 +162,9 @@ _SPDEV.LBasemapSwitcher.Collection = Backbone.Collection.extend({
 		_.each(data, function(rec){
 			
 			if(rec['vendor'] === 'Bing') {
-				rec['mapLayer'] = new L.BingLayer("Asl6WbC1b-Sc6aaKKreVYS0db5tovKsUgwQyMxHyveAadYDUIxhv9_fQq44iBTlL");
+				
+				rec['mapLayer'] = new L.BingLayer("Asl6WbC1b-Sc6aaKKreVYS0db5tovKsUgwQyMxHyveAadYDUIxhv9_fQq44iBTlL", {'type': rec['bingType']});
+						
 			}
 			else {
 			rec['mapLayer'] = L.tileLayer(rec['basemapURL'], {});
