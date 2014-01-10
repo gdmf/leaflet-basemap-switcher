@@ -23,13 +23,89 @@ _SPDEV.LBasemapSwitcher.EXAMPLE_DATA = [
 	}];
 
 
+_SPDEV.LBasemapSwitcher.ModelView =  Backbone.View.extend({
+		
+		initialize: function(){
+			
+			// Listen for changes on the model's "state" attribute; true means the WMS layer should be 'on'
+			this.model.bind('change:state', this.onStateChange, this);
+		},
+		
+		
+		tagName: 'li',
+		
+		// When this view is click, fire the onClick function
+		events: {'click': 'onClick'},
+		
+		className: 'checkbox-list-item',
+		
+		// The view's html template
+		template: _.template('<div class="label"><%= alias %></div>'),
+		
+		// Render this view
+		render: function(){
+			
+			this.$el.append(this.template(this.model.attributes));
+		},
+		
+		// Function for view click event
+		onClick: function(e){
+ 			
+ 			if(this.model.get('state') === true) {
+ 				return;
+ 			}
+ 			
+ 			var self = this;
+ 			
+ 			// Loop through all models in the parent collection
+ 			this.model.collection.each(function(colModel, i){
+ 				
+ 				// For all model's except the one linked to this view
+ 				if(colModel !== self.model){
+ 					
+ 					//Reset state to false
+ 					colModel.set({'state': false});
+ 				}
+ 			});
+ 			
+ 			// Set the new model 'state' value
+ 			this.model.set({'state': true});
+ 			
+	 	},
+	 	
+	 	// When the model's state attribute changes, this function fires;  this will add/remove map layer, check uncheck checkboxes
+		onStateChange: function(){
+			// Get the model's 'state' attribute
+			var state = this.model.get('state');
+			
+			// state == true
+ 			if(state) {
+ 				// Set the view css class appropriately
+ 				this.$el.addClass('selected');
+ 				
+ 				// Add the wms layer to the map
+ 				this.model.collection.map.addLayer(this.model.get('mapLayer'));
+ 				this.model.get('mapLayer').bringToBack();			
+ 			}
+ 			else {
+ 				this.$el.removeClass('selected');
+ 				this.model.collection.map.removeLayer(this.model.get('mapLayer'));
+ 			}
+		}
+		
+	});
+
 // The collection view that serves as the checkbox list to turn on/off wms layers
 _SPDEV.LBasemapSwitcher.SelectionListCollectionView = Backbone.View.extend({
 	
-	initialize: function () {
+	initialize: function (options) {
 		
 		var self = this;
 		
+		var opts = options || {};
+                
+        var modelViewClass = opts.modelViewClass || _SPDEV.LBasemapSwitcher.ModelView;
+                
     	// Create an array property that will store model views contained in this collection view
     	this.componentViews = [];
     	
@@ -37,7 +113,7 @@ _SPDEV.LBasemapSwitcher.SelectionListCollectionView = Backbone.View.extend({
     	this.collection.forEach( function(colModel, index) {
     		
     		// Create a view for each model contained in this view's referenced collection - each view is a WMS list-item			
-		    var modelView = new  self.modelView({model:colModel});
+		    var modelView = new  modelViewClass({model:colModel});
 		    
 		    // Store this in the collection view's componentView array
 		    self.componentViews.push(modelView);
@@ -68,81 +144,9 @@ _SPDEV.LBasemapSwitcher.SelectionListCollectionView = Backbone.View.extend({
 	    
 	},
 	
-	// The model view for each model in this collection view
-	modelView: Backbone.View.extend({
-		
-		initialize: function(){
-			
-			// Listen for changes on the model's "state" attribute; true means the WMS layer should be 'on'
-			this.model.bind('change:state', this.onStateChange, this);
-		},
-		
-		
-		tagName: 'li',
-		
-		// When this view is click, fire the onClick function
-		events: {'click': 'onClick'},
-		
-		className: 'checkbox-list-item',
-		
-		// The view's html template
-		template: _.template('<div class="label"><%= alias %></div>'),
-		
-		// Render this view
-		render: function(){
-			
-			this.$el.append(this.template(this.model.attributes));
-		},
-		
-		// Function for view click event
-		onClick: function(e){
- 			
- 			 
- 			var self = this;
- 			
- 			// Loop through all models in the parent collection
- 			this.model.collection.each(function(colModel, i){
- 				
- 				// For all model's except the one linked to this view
- 				if(colModel !== self.model){
- 					
- 					//Reset state to false
- 					colModel.set({'state': false});
- 				}
- 			});
- 			
- 			// Whatever the state was before the user click, make it opposite.  (If it was checked, uncheck it). 
- 			var state = !this.model.get('state');
- 			
- 			// Set the new model 'state' value
- 			this.model.set({'state': state});
- 			
-	 	},
-	 	
-	 	// When the model's state attribute changes, this function fires;  this will add/remove map layer, check uncheck checkboxes
-		onStateChange: function(){
-			// Get the model's 'state' attribute
-			var state = this.model.get('state');
-			
-			// state == true
- 			if(state) {
- 				// Set the view css class appropriately
- 				this.$el.addClass('selected');
- 				
- 				// Add the wms layer to the map
- 				this.model.collection.map.addLayer(this.model.get('mapLayer'));				
- 			}
- 			else {
- 				this.$el.removeClass('selected');
- 				this.model.collection.map.removeLayer(this.model.get('mapLayer'));
- 			}
-		}
-		
-	}),
-	
 });
 
-// Backbone collection to hold the WMS-layer models
+// Backbone collection to hold the basemap models
 _SPDEV.LBasemapSwitcher.Collection = Backbone.Collection.extend({
 	
 	constructor: function (options) {
