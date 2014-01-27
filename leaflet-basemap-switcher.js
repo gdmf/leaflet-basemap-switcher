@@ -55,11 +55,6 @@ _SPDEV.LBasemapSwitcher.ModelView =  Backbone.View.extend({
  				return;
  			}
  			
- 			var self = this;
- 			
- 			if(this.model.get('state') === true) {
- 				return;
- 			}
  			
  			// Loop through all models in the parent collection
  			this.model.collection.each(function(colModel, i){
