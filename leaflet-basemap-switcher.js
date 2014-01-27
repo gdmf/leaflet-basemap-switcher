@@ -100,6 +100,10 @@ _SPDEV.LBasemapSwitcher.SelectionListCollectionView = Backbone.View.extend({
  			 
  			var self = this;
  			
+ 			if(this.model.get('state') === true) {
+ 				return;
+ 			}
+ 			
  			// Loop through all models in the parent collection
  			this.model.collection.each(function(colModel, i){
  				
